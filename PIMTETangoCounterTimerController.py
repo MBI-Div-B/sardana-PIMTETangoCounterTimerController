@@ -32,21 +32,21 @@ class PIMTETangoCounterTimerController(TwoDController, Referable):
     This example is so basic that it is not even directly described in the
     documentation"""
     ctrl_properties = {'tangoFQDN': {Type: str, 
-                              Description: 'The FQDN of the greateyes tango DS', 
-                              DefaultValue: 'greateyes.hhg.lab'},
+                              Description: 'The FQDN of the PI-MTE tango DS', 
+                              DefaultValue: 'domain/family/member'},
                        }
 
-    axis_attributes = {
-             "SavingEnabled": {
-                Type: bool,
-                FGet: "isSavingEnabled",
-                FSet: "setSavingEnabled",
-                Description: ("Enable/disable saving of images in HDF5 files."
-                              " Use with care in high demanding (fast)"
-                              " acquisitions. Trying to save at high rate may"
-                              " hang the acquisition process."),
-             }
-        }
+    # axis_attributes = {
+    #          "SavingEnabled": {
+    #             Type: bool,
+    #             FGet: "isSavingEnabled",
+    #             FSet: "setSavingEnabled",
+    #             Description: ("Enable/disable saving of images in HDF5 files."
+    #                           " Use with care in high demanding (fast)"
+    #                           " acquisitions. Trying to save at high rate may"
+    #                           " hang the acquisition process."),
+    #          }
+    #     }
 
     def AddDevice(self, axis):
         self._axes[axis] = {}
@@ -57,19 +57,17 @@ class PIMTETangoCounterTimerController(TwoDController, Referable):
     def __init__(self, inst, props, *args, **kwargs):
         """Constructor"""
         TwoDController.__init__(self,inst,props, *args, **kwargs)
-        print('GreatEyes Tango Initialization ...')
+        print('PI-MTE Tango Initialization ...')
         self.proxy = DeviceProxy(self.tangoFQDN)
         print('SUCCESS')
         self._axes = {}
         
     def ReadOne(self, axis):
-        """Get the specified counter value"""    
-        #print(self._SavingEnabled)
-        #print('Image saved to: {:s}'.format(self.proxy.LastSavedImage))
+        """Get the specified counter value"""
         return self.proxy.image
     
     def RefOne(self, axis):
-        return self.proxy.LastSavedImage
+        return self.proxy.save_index
     
     def SetAxisPar(self, axis, parameter, value):
 #        if parameter == "value_ref_pattern":
@@ -85,27 +83,27 @@ class PIMTETangoCounterTimerController(TwoDController, Referable):
         return self.proxy.State(), "Counter is acquiring or not"
 
     def PrepareOne(self, axis, value, repetitions, latency, nb_starts):
-        # set exporsure time of GE cam
-        self.proxy.ExposureTime = float(value)
+        # set exporsure time of cam convert from s to ms
+        self.proxy.exposure = float(value*1000)
     
     def LoadOne(self, axis, value, repetitions, latency):
         pass
 
     def StartOne(self, axis, value=None):
         """acquire the specified counter"""
-        self.proxy.StartAcq()
+        self.proxy.acquire()
         return
 
     def StopOne(self, axis):
         """Stop the specified counter"""
-        self.proxy.StopAcq()
+        self.proxy.stop()
     
     def AbortOne(self, axis):
         """Abort the specified counter"""
-        self.proxy.StopAcq()
+        self.proxy.stop()
 
-    def isSavingEnabled(self, axis):
-        return bool(self.proxy.SaveImageFiles)
+    # def isSavingEnabled(self, axis):
+    #     return bool(self.proxy.SaveImageFiles)
 
-    def setSavingEnabled(self, axis, value):
-        self.proxy.SaveImageFiles = bool(value)
+    # def setSavingEnabled(self, axis, value):
+    #     self.proxy.SaveImageFiles = bool(value)
