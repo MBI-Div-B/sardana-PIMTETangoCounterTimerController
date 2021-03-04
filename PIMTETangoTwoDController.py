@@ -23,7 +23,7 @@
 from tango import DeviceProxy
 from sardana.pool.controller import TwoDController, Referable, Type, Description, DefaultValue, FGet, FSet
 
-class PIMTETangoCounterTimerController(TwoDController, Referable):
+class PIMTETangoTwoDController(TwoDController, Referable):
     """The most basic controller intended from demonstration purposes only.
     This is the absolute minimum you have to implement to set a proper counter
     controller able to get a counter value, get a counter state and do an
@@ -79,7 +79,6 @@ class PIMTETangoCounterTimerController(TwoDController, Referable):
 
     def StateOne(self, axis):
         """Get the specified counter state"""
-#            
         return self.proxy.State(), "Counter is acquiring or not"
 
     def PrepareOne(self, axis, value, repetitions, latency, nb_starts):
@@ -107,3 +106,10 @@ class PIMTETangoCounterTimerController(TwoDController, Referable):
 
     # def setSavingEnabled(self, axis, value):
     #     self.proxy.SaveImageFiles = bool(value)
+
+    def GetAxisPar(self, axis, par):
+        if par == "shape":
+            roi = self.proxy.get_roi_size()
+            print('########################################################')
+            print(roi)
+            return [roi[3]/roi[5], roi[2]/roi[4]]
