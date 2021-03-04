@@ -79,7 +79,6 @@ class PIMTETangoTwoDController(TwoDController, Referable):
 
     def StateOne(self, axis):
         """Get the specified counter state"""
-#            
         return self.proxy.State(), "Counter is acquiring or not"
 
     def PrepareOne(self, axis, value, repetitions, latency, nb_starts):
@@ -107,3 +106,10 @@ class PIMTETangoTwoDController(TwoDController, Referable):
 
     # def setSavingEnabled(self, axis, value):
     #     self.proxy.SaveImageFiles = bool(value)
+
+    def GetAxisPar(self, axis, par):
+        if par == "shape":
+            roi = self.proxy.get_roi_size()
+            print('########################################################')
+            print(roi)
+            return [roi[3]/roi[5], roi[2]/roi[4]]
